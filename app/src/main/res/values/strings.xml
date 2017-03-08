@@ -1,13 +1,17 @@
 <resources>
     <string name="app_name">OOmvelt</string>
 
+    <string name="error_bt_connect_title">Could not connect</string>
+    <string name="error_bt_connect_message">OOmvelt could not connect to the Bluetooth device %s.</string>
     <string name="error_bt_no_title">Bluetooth not found</string>
     <string name="error_bt_no_message">OOmvelt requires a Bluetooth adaptor. It does not seem that your phone has one.</string>
     <string name="error_bt_disabled_title">Bluetooth is disabled</string>
     <string name="error_bt_disabled_message">OOmvelt requires a Bluetooth connection. To use the application you need to enable Bluetooth..</string>
     <string name="main_bluetooth_setup">Choose Rat</string>
-    <string name="main_bluetooth_status_device">Connected to Rat: %s.</string>
-    <string name="main_bluetooth_status_none">Not connected to Rat.</string>
+    <string name="main_bluetooth_connect">Read from Rat</string>
+    <string name="main_bluetooth_disconnect">Disconnect</string>
+    <string name="main_bluetooth_status_device">Will use Rat: %s.</string>
+    <string name="main_bluetooth_status_none">No Rat selected.</string>
     <string name="main_bluetooth_devices_title">Available Bluetooth devices</string>
     <string name="main_bluetooth_devices_loading">Looking for nearby Bluetooth devices.</string>
     <string name="btlist_title">Bluetooth devices</string>

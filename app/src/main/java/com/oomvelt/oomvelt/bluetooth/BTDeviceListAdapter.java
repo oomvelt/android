@@ -1,8 +1,7 @@
-package com.oomvelt.oomvelt;
+package com.oomvelt.oomvelt.bluetooth;
 
 import android.bluetooth.BluetoothDevice;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,11 +42,11 @@ public class BTDeviceListAdapter extends RecyclerView.Adapter<BTDeviceListAdapte
         return devices.size();
     }
 
-    void setCallback(ItemCallback itemCallback) {
+    public void setCallback(ItemCallback itemCallback) {
         this.itemCallback = itemCallback;
     }
 
-    interface ItemCallback {
+    public interface ItemCallback {
         void onItemClicked(BluetoothDevice device);
     }
 
@@ -69,7 +68,6 @@ public class BTDeviceListAdapter extends RecyclerView.Adapter<BTDeviceListAdapte
 
         @Override
         public void onClick(View v) {
-            Log.v("CLICK", "Click");
             BluetoothDevice device = devices.get(getAdapterPosition());
             adapter.itemCallback.onItemClicked(device);
         }
