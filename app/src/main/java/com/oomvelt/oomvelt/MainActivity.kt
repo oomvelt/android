@@ -18,6 +18,8 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.oomvelt.oomvelt.bluetooth.BTHelper
 import com.oomvelt.oomvelt.bluetooth.BTDeviceListAdapter
 
+import com.oomvelt.oomvelt.BTService
+
 import butterknife.BindString
 import butterknife.BindView
 import butterknife.ButterKnife
@@ -25,6 +27,7 @@ import butterknife.OnClick
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
+
 
 class MainActivity : AppCompatActivity() {
     @BindView(R.id.bluetooth_choose) lateinit var bluetoothChoose: Button
@@ -86,12 +89,20 @@ class MainActivity : AppCompatActivity() {
 
     @OnClick(R.id.bluetooth_connect)
     fun handlerBluetoothConnect() {
+
+        // Push to the bt service!
+        val intent = Intent(this, BTService::class.java)
+        //intent.putExtra("id", 5)
+        //intent.setFlag(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        startActivity(intent)
+
         var socket: BluetoothSocket? = btHelper.connectToDevice(btDevice)
 
         if (socket == null) {
             Util.showAlert(this, errorBtConnectTitle, String.format(errorBtConnectMessage, if (btDevice!!.name != null) btDevice!!.name else btDevice!!.address))
             return
         }
+
 
         bluetoothLog.setText("", TextView.BufferType.NORMAL)
 
@@ -107,7 +118,6 @@ class MainActivity : AppCompatActivity() {
         line += "\n";
 
         bluetoothLog.setText(line, TextView.BufferType.NORMAL)
-
         br.close();
         iStream.close();
         socket.close();
