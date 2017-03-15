@@ -8,8 +8,9 @@
     <string name="error_bt_disabled_title">Bluetooth is disabled</string>
     <string name="error_bt_disabled_message">OOmvelt requires a Bluetooth connection. To use the application you need to enable Bluetooth..</string>
     <string name="main_bluetooth_setup">Choose Rat</string>
-    <string name="main_bluetooth_connect">Read from Rat</string>
-    <string name="main_bluetooth_disconnect">Disconnect</string>
+    <string name="main_bluetooth_read_start">Start reading</string>
+    <string name="main_bluetooth_read_end">Stop reading</string>
+    <string name="main_bluetooth_read_status">Saving to %s.</string>
     <string name="main_bluetooth_status_device">Will use Rat: %s.</string>
     <string name="main_bluetooth_status_none">No Rat selected.</string>
     <string name="main_bluetooth_devices_title">Available Bluetooth devices</string>

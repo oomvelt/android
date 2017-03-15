@@ -3,14 +3,6 @@ package com.oomvelt.oomvelt
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
-import android.content.DialogInterface
-import android.content.Context.MODE_PRIVATE
-import android.content.SharedPreferences
-import android.R.id.edit
-
-
-
-
 
 object Util {
     var REQUEST_BT_ENABLE = 2
