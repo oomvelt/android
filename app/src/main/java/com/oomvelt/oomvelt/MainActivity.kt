@@ -19,13 +19,14 @@ import android.widget.Button
 import android.widget.TextView
 
 import com.afollestad.materialdialogs.MaterialDialog
-import com.oomvelt.oomvelt.bluetooth.BTHelper
-import com.oomvelt.oomvelt.bluetooth.BTDeviceListAdapter
+import com.oomvelt.oomvelt.bluetooth.BluetoothHelper
+import com.oomvelt.oomvelt.ui.BluetoothDeviceAdapter
 
 import butterknife.BindString
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
+import com.oomvelt.oomvelt.bluetooth.BluetoothService
 import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.singleTop
 
@@ -54,7 +55,7 @@ class MainActivity : AppCompatActivity() {
     @BindString(R.string.main_bluetooth_status_device) lateinit var mainBtStatusDevice: String
     @BindString(R.string.main_bluetooth_status_none) lateinit var mainBtStatusNone: String
 
-    private lateinit var btHelper: BTHelper
+    private lateinit var bluetoothHelper: BluetoothHelper
     private lateinit var activity: Activity
 
     // Bluetooth related
@@ -67,9 +68,9 @@ class MainActivity : AppCompatActivity() {
 
     private val bluetoothReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            val operation = intent.getIntExtra(BTService.OPERATION, 0)
+            val operation = intent.getIntExtra(BluetoothService.OPERATION, 0)
 
-            if (BTService.OPERATION_FILE_SAVE_START == operation) {
+            if (BluetoothService.OPERATION_FILE_SAVE_START == operation) {
                 if (writeStatus != null) {
                     writeStatus!!.dismiss()
                 }
@@ -80,17 +81,18 @@ class MainActivity : AppCompatActivity() {
                 writeStatus!!.show()
             }
 
-            if (BTService.OPERATION_FILE_SAVE_STOP == operation) {
+            if (BluetoothService.OPERATION_FILE_SAVE_STOP == operation) {
                 if (writeStatus != null) {
                     writeStatus!!.dismiss()
                 }
             }
 
-            if (BTService.OPERATION_DISCOVER_DEVICES == operation) {
+            if (BluetoothService.OPERATION_DISCOVER_DEVICES == operation) {
                 btProgressDialog!!.dismiss();
 
                 val devices: ArrayList<BluetoothDevice> = intent.extras.getParcelableArrayList("devices")
-                var adapter : BTDeviceListAdapter = BTDeviceListAdapter(devices)
+                var adapter : BluetoothDeviceAdapter = BluetoothDeviceAdapter(
+                    devices)
                 adapter.setCallback(btDeviceCallback)
 
                 btListDialog = MaterialDialog.Builder(activity)
@@ -101,7 +103,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private val btDeviceCallback = BTDeviceListAdapter.ItemCallback { device -> btListDialog!!.dismiss(); bluetoothDeviceSelected(device) }
+    private val btDeviceCallback = BluetoothDeviceAdapter.ItemCallback { device -> btListDialog!!.dismiss(); bluetoothDeviceSelected(device) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -110,13 +112,14 @@ class MainActivity : AppCompatActivity() {
         ButterKnife.bind(this)
 
         activity = this
-        btHelper = BTHelper();
+        bluetoothHelper = BluetoothHelper();
     }
 
     override fun onResume() {
         super.onResume()
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(bluetoothReceiver, IntentFilter(BTService.INTENT_EVENT_NAME));
+        LocalBroadcastManager.getInstance(this).registerReceiver(bluetoothReceiver, IntentFilter(
+                BluetoothService.INTENT_EVENT_NAME));
 
         this.uiBluetoothDisabled()
 
@@ -138,17 +141,19 @@ class MainActivity : AppCompatActivity() {
 
         LocalBroadcastManager.getInstance(this).unregisterReceiver(bluetoothReceiver)
 
-        stopService(intentFor<BTService>())
+        stopService(intentFor<BluetoothService>())
     }
 
     @OnClick(R.id.bluetooth_connect)
     fun handlerBluetoothConnect() {
         // Need a better way to handle this
         if (bluetoothConnect.text == buttonReadStart) {
-            startService(intentFor<BTService>(BTService.OPERATION to BTService.OPERATION_FILE_SAVE_START, BTService.DEVICE to btDevice).singleTop())
+            startService(intentFor<BluetoothService>(
+                    BluetoothService.OPERATION to BluetoothService.OPERATION_FILE_SAVE_START, BluetoothService.DEVICE to btDevice).singleTop())
             bluetoothConnect.text = buttonReadStop
         } else {
-            startService(intentFor<BTService>(BTService.OPERATION to BTService.OPERATION_FILE_SAVE_STOP).singleTop())
+            startService(intentFor<BluetoothService>(
+                    BluetoothService.OPERATION to BluetoothService.OPERATION_FILE_SAVE_STOP).singleTop())
             bluetoothConnect.text = buttonReadStart
         }
     }
@@ -157,7 +162,8 @@ class MainActivity : AppCompatActivity() {
     fun handlerBluetoothChoose() {
         uiShowLoading(true)
 
-        startService(intentFor<BTService>(BTService.OPERATION to BTService.OPERATION_DISCOVER_DEVICES).singleTop())
+        startService(intentFor<BluetoothService>(
+                BluetoothService.OPERATION to BluetoothService.OPERATION_DISCOVER_DEVICES).singleTop())
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -184,7 +190,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkIfBluetoothIsEnabled() {
-        btHelper.checkIfEnabled(this) { uiBluetoothEnabled() }
+        bluetoothHelper.checkIfEnabled(this) { uiBluetoothEnabled() }
     }
 
     private fun uiBluetoothDisabled() {
@@ -200,7 +206,7 @@ class MainActivity : AppCompatActivity() {
 
         val address: String? = Util.preferenceLoad(this, "deviceAddress")
         if (address != null) {
-            val device: BluetoothDevice? = btHelper.getDeviceByAddress(address)
+            val device: BluetoothDevice? = bluetoothHelper.getDeviceByAddress(address)
             if (device != null) {
                 bluetoothDeviceSelected(device)
             }

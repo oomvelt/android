@@ -21,7 +21,7 @@ import java.io.IOException
 import java.io.InputStreamReader
 import java.util.*
 
-class BTHelper : AnkoLogger {
+class BluetoothHelper : AnkoLogger {
     val adapter = getBluetoothAdapter()
 
     interface DiscoveryCallback {

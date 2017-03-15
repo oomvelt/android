@@ -16,7 +16,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <service android:name="BTService" android:exported="false" />
+        <service android:name=".bluetooth.BluetoothService" android:exported="false" />
 
         <activity android:name=".MainActivity">
             <intent-filter>

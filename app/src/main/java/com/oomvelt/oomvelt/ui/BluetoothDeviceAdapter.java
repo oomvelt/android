@@ -1,4 +1,4 @@
-package com.oomvelt.oomvelt.bluetooth;
+package com.oomvelt.oomvelt.ui;
 
 import android.bluetooth.BluetoothDevice;
 import android.support.v7.widget.RecyclerView;
@@ -9,12 +9,12 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-public class BTDeviceListAdapter extends RecyclerView.Adapter<BTDeviceListAdapter.ViewHolder> {
-    private ArrayList<BluetoothDevice> devices;
-    private ItemCallback itemCallback;
+public class BluetoothDeviceAdapter extends RecyclerView.Adapter<BluetoothDeviceAdapter.ViewHolder> {
+    private ArrayList<BluetoothDevice> mDevices;
+    private ItemCallback mItemCallback;
 
-    public BTDeviceListAdapter(ArrayList<BluetoothDevice> devices) {
-        this.devices = devices;
+    public BluetoothDeviceAdapter(ArrayList<BluetoothDevice> devices) {
+        mDevices = devices;
     }
 
     @Override
@@ -26,7 +26,7 @@ public class BTDeviceListAdapter extends RecyclerView.Adapter<BTDeviceListAdapte
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        BluetoothDevice device = devices.get(position);
+        BluetoothDevice device = mDevices.get(position);
 
         String deviceName = device.getName();
         String deviceAddress = device.getAddress();
@@ -39,23 +39,23 @@ public class BTDeviceListAdapter extends RecyclerView.Adapter<BTDeviceListAdapte
 
     @Override
     public int getItemCount() {
-        return devices.size();
+        return mDevices.size();
     }
 
     public void setCallback(ItemCallback itemCallback) {
-        this.itemCallback = itemCallback;
+        mItemCallback = itemCallback;
     }
 
     public interface ItemCallback {
         void onItemClicked(BluetoothDevice device);
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView name;
         TextView address;
-        BTDeviceListAdapter adapter;
+        BluetoothDeviceAdapter adapter;
 
-        public ViewHolder(View itemView, BTDeviceListAdapter adapter) {
+        ViewHolder(View itemView, BluetoothDeviceAdapter adapter) {
             super(itemView);
 
             this.adapter = adapter;
@@ -68,8 +68,8 @@ public class BTDeviceListAdapter extends RecyclerView.Adapter<BTDeviceListAdapte
 
         @Override
         public void onClick(View v) {
-            BluetoothDevice device = devices.get(getAdapterPosition());
-            adapter.itemCallback.onItemClicked(device);
+            BluetoothDevice device = mDevices.get(getAdapterPosition());
+            adapter.mItemCallback.onItemClicked(device);
         }
     }
 }
