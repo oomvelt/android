@@ -27,7 +27,7 @@ check {
     config "$rootProject.rootDir/config/quality/checkstyle/checkstyle-config.xml"
   }
   pmd {
-    config "$rootProject.rootDir/config/quality/your/pmd-ruleset.xml"
+    config "$rootProject.rootDir/config/quality/pmd-ruleset.xml"
   }
 }
 
