@@ -31,29 +31,25 @@ import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.singleTop
 
 class MainActivity : AppCompatActivity() {
-  @BindView(R.id.bluetooth_choose) lateinit var bluetoothChoose: Button
-  @BindView(R.id.bluetooth_connect) lateinit var bluetoothConnect: Button
+  @BindView(R.id.bluetooth_choose) lateinit var bluetoothChooseButton: Button
+  @BindView(R.id.bluetooth_connect) lateinit var bluetoothConnectButton: Button
 
-  @BindView(R.id.bluetooth_status) lateinit var bluetoothStatus: TextView
+  @BindView(R.id.bluetooth_status) lateinit var bluetoothStatusView: TextView
 
-  @BindView(R.id.activity_main) lateinit var mainView: CoordinatorLayout
+  @BindView(R.id.activity_main) lateinit var mainViewLayout: CoordinatorLayout
 
-  @BindString(R.string.error_bt_no_title) lateinit var errorBtNoTitle: String
-  @BindString(R.string.error_bt_no_message) lateinit var errorBtNoMessage: String
-  @BindString(R.string.error_bt_disabled_title) lateinit var errorBtDisabledTitle: String
-  @BindString(R.string.error_bt_disabled_message) lateinit var errorBtDisabledMessage: String
-  @BindString(R.string.error_bt_connect_title) lateinit var errorBtConnectTitle: String
-  @BindString(R.string.error_bt_connect_message) lateinit var errorBtConnectMessage: String
+  @BindString(R.string.error_bt_disabled_title) lateinit var uiErrorBtDisabledTitle: String
+  @BindString(R.string.error_bt_disabled_message) lateinit var uiErrorBtDisabledMessage: String
 
-  @BindString(R.string.main_bluetooth_read_start) lateinit var buttonReadStart: String
-  @BindString(R.string.main_bluetooth_read_end) lateinit var buttonReadStop: String
-  @BindString(R.string.main_bluetooth_read_status) lateinit var readStatus: String
+  @BindString(R.string.main_bluetooth_read_start) lateinit var uiButtonReadStart: String
+  @BindString(R.string.main_bluetooth_read_end) lateinit var uiButtonReadStop: String
+  @BindString(R.string.main_bluetooth_read_status) lateinit var uiReadStatus: String
 
-  @BindString(R.string.main_bluetooth_devices_title) lateinit var bluetoothDevicesTitle: String
-  @BindString(R.string.main_bluetooth_devices_loading) lateinit var bluetoothDevicesLoading: String
+  @BindString(R.string.main_bluetooth_devices_title) lateinit var uiBluetoothDevicesTitle: String
+  @BindString(R.string.main_bluetooth_devices_loading) lateinit var uiBluetoothDevicesLoading: String
 
-  @BindString(R.string.main_bluetooth_status_device) lateinit var mainBtStatusDevice: String
-  @BindString(R.string.main_bluetooth_status_none) lateinit var mainBtStatusNone: String
+  @BindString(R.string.main_bluetooth_status_device) lateinit var uiMainBtStatusDevice: String
+  @BindString(R.string.main_bluetooth_status_none) lateinit var uiMainBtStatusNone: String
 
   private lateinit var mBluetoothHelper: BluetoothHelper
   private lateinit var mActivity: Activity
@@ -78,7 +74,7 @@ class MainActivity : AppCompatActivity() {
 
         val file: String = intent.getStringExtra("file")
 
-        mWriteStatusSnackbar = Snackbar.make(mainView, String.format(readStatus, file),
+        mWriteStatusSnackbar = Snackbar.make(mainViewLayout, String.format(uiReadStatus, file),
             Snackbar.LENGTH_INDEFINITE)
         mWriteStatusSnackbar!!.show()
       }
@@ -97,7 +93,7 @@ class MainActivity : AppCompatActivity() {
         adapter.setCallback(btDeviceCallback)
 
         mBluetoothListDialog = MaterialDialog.Builder(mActivity)
-            .title(bluetoothDevicesTitle)
+            .title(uiBluetoothDevicesTitle)
             .adapter(adapter, null)
             .show()
       }
@@ -151,15 +147,15 @@ class MainActivity : AppCompatActivity() {
   @OnClick(R.id.bluetooth_connect)
   fun handlerBluetoothConnect() {
     // Need a better way to handle this
-    if (bluetoothConnect.text == buttonReadStart) {
+    if (bluetoothConnectButton.text == uiButtonReadStart) {
       startService(intentFor<BluetoothService>(
           BluetoothService.OPERATION to BluetoothService.OPERATION_FILE_SAVE_START,
           BluetoothService.DEVICE to mBluetoothDevice).singleTop())
-      bluetoothConnect.text = buttonReadStop
+      bluetoothConnectButton.text = uiButtonReadStop
     } else {
       startService(intentFor<BluetoothService>(
           BluetoothService.OPERATION to BluetoothService.OPERATION_FILE_SAVE_STOP).singleTop())
-      bluetoothConnect.text = buttonReadStart
+      bluetoothConnectButton.text = uiButtonReadStart
     }
   }
 
@@ -190,7 +186,7 @@ class MainActivity : AppCompatActivity() {
       if (resultCode == Activity.RESULT_OK) {
         this.uiBluetoothEnabled()
       } else {
-        Util.showAlert(this, errorBtDisabledTitle, errorBtDisabledMessage)
+        Util.showAlert(this, uiErrorBtDisabledTitle, uiErrorBtDisabledMessage)
       }
     }
   }
@@ -200,15 +196,15 @@ class MainActivity : AppCompatActivity() {
   }
 
   private fun uiBluetoothDisabled() {
-    bluetoothStatus.text = mainBtStatusNone
-    bluetoothChoose.isEnabled = false
-    bluetoothConnect.visibility = View.INVISIBLE
+    bluetoothStatusView.text = uiMainBtStatusNone
+    bluetoothChooseButton.isEnabled = false
+    bluetoothConnectButton.visibility = View.INVISIBLE
   }
 
   private fun uiBluetoothEnabled() {
-    bluetoothChoose.isEnabled = true
-    bluetoothConnect.visibility = View.VISIBLE
-    bluetoothConnect.isEnabled = false
+    bluetoothChooseButton.isEnabled = true
+    bluetoothConnectButton.visibility = View.VISIBLE
+    bluetoothConnectButton.isEnabled = false
 
     val address: String? = Util.preferenceLoad(this, "deviceAddress")
     if (address != null) {
@@ -220,16 +216,16 @@ class MainActivity : AppCompatActivity() {
   }
 
   private fun uiBluetoothDeviceSelected() {
-    bluetoothStatus.text = String.format(mainBtStatusDevice,
+    bluetoothStatusView.text = String.format(uiMainBtStatusDevice,
         if (mBluetoothDevice!!.name != null) mBluetoothDevice!!.name else mBluetoothDevice!!.address)
-    bluetoothConnect.isEnabled = true
+    bluetoothConnectButton.isEnabled = true
   }
 
   private fun uiShowLoading(status: Boolean) {
     if (mBluetoothProgressDialog == null) {
       mBluetoothProgressDialog = MaterialDialog.Builder(this)
-          .title(bluetoothDevicesTitle)
-          .content(bluetoothDevicesLoading)
+          .title(uiBluetoothDevicesTitle)
+          .content(uiBluetoothDevicesLoading)
           .progress(true, 0)
           .build()
     }
