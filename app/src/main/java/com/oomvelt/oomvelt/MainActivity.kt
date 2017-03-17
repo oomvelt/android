@@ -35,6 +35,7 @@ class MainActivity : AppCompatActivity() {
   @BindView(R.id.bluetooth_connect) lateinit var bluetoothConnectButton: Button
 
   @BindView(R.id.bluetooth_status) lateinit var bluetoothStatusView: TextView
+  @BindView(R.id.application_version) lateinit var applicationVersionView: TextView
 
   @BindView(R.id.activity_main) lateinit var mainViewLayout: CoordinatorLayout
 
@@ -112,6 +113,9 @@ class MainActivity : AppCompatActivity() {
 
     mActivity = this
     mBluetoothHelper = BluetoothHelper()
+
+    val versionName = packageManager.getPackageInfo(packageName, 0).versionName
+    applicationVersionView.text = versionName
   }
 
   override fun onResume() {

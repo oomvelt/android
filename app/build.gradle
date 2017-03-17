@@ -5,12 +5,36 @@ apply plugin: 'com.noveogroup.android.check'
 android {
   compileSdkVersion 25
   buildToolsVersion "25.0.2"
+
+  def versionPropsFile = file('version.properties')
+  def versionBuild
+
+  if (versionPropsFile.canRead()) {
+    def Properties versionProps = new Properties()
+    versionProps.load(new FileInputStream(versionPropsFile))
+    versionBuild = versionProps['VERSION_BUILD'].toInteger()
+  } else {
+    throw new GradleException("Could not read version.properties!")
+  }
+
+  ext.autoIncrementBuildNumber = {
+    if (versionPropsFile.canRead()) {
+      def Properties versionProps = new Properties()
+      versionProps.load(new FileInputStream(versionPropsFile))
+      versionBuild = versionProps['VERSION_BUILD'].toInteger() + 1
+      versionProps['VERSION_BUILD'] = versionBuild.toString()
+      versionProps.store(versionPropsFile.newWriter(), null)
+    } else {
+      throw new GradleException("Could not read version.properties!")
+    }
+  }
+
   defaultConfig {
     applicationId "com.oomvelt.oomvelt"
     minSdkVersion 18
     targetSdkVersion 19
     versionCode 1
-    versionName "1.0"
+    versionName "1.0.0." + versionBuild
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
   }
 
@@ -33,6 +57,14 @@ android {
 
   lintOptions {
     abortOnError false
+  }
+
+  gradle.taskGraph.whenReady {taskGraph ->
+    if (taskGraph.hasTask(assembleDebug)) {
+      autoIncrementBuildNumber()
+    } else if (taskGraph.hasTask(assembleRelease)) {
+      autoIncrementBuildNumber()
+    }
   }
 }
 
