@@ -1,6 +1,7 @@
 package com.oomvelt.oomvelt.io
 
 import org.jetbrains.anko.AnkoLogger
+import org.jetbrains.anko.info
 import java.io.BufferedWriter
 import java.io.File
 import java.io.IOException
@@ -25,7 +26,8 @@ internal class FileWriterRunnable @Throws(IOException::class) constructor(
 
     try {
       mQueue.put(s)
-    } catch (ignored: InterruptedException) {
+    } catch (e: InterruptedException) {
+      e.printStackTrace()
     }
 
     return this
@@ -37,25 +39,28 @@ internal class FileWriterRunnable @Throws(IOException::class) constructor(
   }
 
   override fun run() {
-    while (!mRunning) {
+    while (mRunning) {
       try {
         val line = mQueue.poll(100, TimeUnit.MICROSECONDS)
 
         if (line != null) {
           try {
+            info(line)
             mOut.write(line)
           } catch (e: IOException) {
             e.printStackTrace()
           }
         }
       } catch (e: InterruptedException) {
+        e.printStackTrace()
       }
-
     }
 
     try {
+      mOut.flush()
       mOut.close()
-    } catch (ignore: IOException) {
+    } catch (e: IOException) {
+      e.printStackTrace()
     }
   }
 

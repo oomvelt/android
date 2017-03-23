@@ -33,6 +33,7 @@ public class BluetoothService extends Service {
 
   private Service mService;
   private SocketReaderRunnable mSocketReader;
+  private BluetoothSocket mBluetoothSocket;
   private BluetoothHelper mBluetoothHelper;
   private File mFileToWrite;
   private boolean mSaving = false;
@@ -77,9 +78,9 @@ public class BluetoothService extends Service {
 
   private void operationFileSaveStart(Intent intent) {
     BluetoothDevice device = intent.getExtras().getParcelable(DEVICE);
-    BluetoothSocket socket = mBluetoothHelper.connectToDevice(device);
+    mBluetoothSocket = mBluetoothHelper.connectToDevice(device);
 
-    if (socket == null) {
+    if (mBluetoothSocket == null) {
       sendError(OPERATION_FILE_SAVE_START, "Could not connect to Bluetooth device.");
     } else {
       String fileDirectory;
@@ -110,7 +111,7 @@ public class BluetoothService extends Service {
           mSocketReader.stop();
         }
 
-        mSocketReader = new SocketReaderRunnable(socket, mFileToWrite);
+        mSocketReader = new SocketReaderRunnable(mBluetoothSocket, mFileToWrite);
         mSocketReader.start();
 
         Intent resultIntent = new Intent(INTENT_EVENT_NAME);
@@ -129,6 +130,7 @@ public class BluetoothService extends Service {
 
     try {
       mSocketReader.stop();
+      mBluetoothSocket.close();
 
       Intent resultIntent = new Intent(INTENT_EVENT_NAME);
       resultIntent.putExtra(OPERATION, OPERATION_FILE_SAVE_STOP);

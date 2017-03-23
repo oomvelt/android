@@ -44,7 +44,6 @@ constructor(socket: BluetoothSocket, file: File) : Runnable, AnkoLogger {
     while (mRunning) {
       try {
         val line = mBufferedReader.readLine()
-        info(line)
 
         try {
           val dn = lpp.parseLine(line)
@@ -64,7 +63,8 @@ constructor(socket: BluetoothSocket, file: File) : Runnable, AnkoLogger {
     try {
       mBufferedReader.close()
       mInputStream.close()
-    } catch (ignore: IOException) {
+    } catch (e: IOException) {
+      e.printStackTrace()
     }
 
     mFileWriterRunnable.close()
