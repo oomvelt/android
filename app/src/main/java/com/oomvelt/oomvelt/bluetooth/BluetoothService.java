@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import raticator.RatState;
+import raticator.StateChangeCallback;
 
 public class BluetoothService extends Service {
   public static final String TAG = "BluetoothService";
@@ -30,6 +32,7 @@ public class BluetoothService extends Service {
   public static final int OPERATION_DISCOVER_DEVICES = 0;
   public static final int OPERATION_FILE_SAVE_START = 1;
   public static final int OPERATION_FILE_SAVE_STOP = 2;
+  public static final int OPERATION_NEW_STATE = 3;
 
   private Service mService;
   private SocketReaderRunnable mSocketReader;
@@ -45,6 +48,13 @@ public class BluetoothService extends Service {
   @Override
   public IBinder onBind(Intent intent) {
     return null;
+  }
+
+  public void onStateChange(RatState newState) {
+    Intent intent = new Intent(INTENT_EVENT_NAME);
+    intent.putExtra("state", newState.toString());
+    intent.putExtra(OPERATION, OPERATION_NEW_STATE);
+    LocalBroadcastManager.getInstance(mService).sendBroadcast(intent);
   }
 
   private void sendError(int operation, String error) {
@@ -110,7 +120,7 @@ public class BluetoothService extends Service {
           mSocketReader.stop();
         }
 
-        mSocketReader = new SocketReaderRunnable(socket, mFileToWrite);
+        mSocketReader = new SocketReaderRunnable(socket, this, mFileToWrite);
         mSocketReader.start();
 
         Intent resultIntent = new Intent(INTENT_EVENT_NAME);

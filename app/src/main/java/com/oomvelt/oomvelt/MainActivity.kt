@@ -29,221 +29,241 @@ import butterknife.OnClick
 import com.oomvelt.oomvelt.bluetooth.BluetoothService
 import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.singleTop
+import raticator.RatState
 
 class MainActivity : AppCompatActivity() {
-    @BindView(R.id.bluetooth_choose) lateinit var bluetoothChoose: Button
-    @BindView(R.id.bluetooth_connect) lateinit var bluetoothConnect: Button
+  @BindView(R.id.bluetooth_choose) lateinit var bluetoothChoose: Button
+  @BindView(R.id.bluetooth_connect) lateinit var bluetoothConnect: Button
 
-    @BindView(R.id.bluetooth_status) lateinit var bluetoothStatus: TextView
+  @BindView(R.id.bluetooth_status) lateinit var bluetoothStatus: TextView
+  @BindView(R.id.rat_status) lateinit var ratStatus: TextView
 
-    @BindView(R.id.activity_main) lateinit var mainView: CoordinatorLayout
+  @BindView(R.id.activity_main) lateinit var mainView: CoordinatorLayout
 
-    @BindString(R.string.error_bt_no_title) lateinit var errorBtNoTitle: String
-    @BindString(R.string.error_bt_no_message) lateinit var errorBtNoMessage: String
-    @BindString(R.string.error_bt_disabled_title) lateinit var errorBtDisabledTitle: String
-    @BindString(R.string.error_bt_disabled_message) lateinit var errorBtDisabledMessage: String
-    @BindString(R.string.error_bt_connect_title) lateinit var errorBtConnectTitle: String
-    @BindString(R.string.error_bt_connect_message) lateinit var errorBtConnectMessage: String
+  @BindString(R.string.error_bt_no_title) lateinit var errorBtNoTitle: String
+  @BindString(R.string.error_bt_no_message) lateinit var errorBtNoMessage: String
+  @BindString(R.string.error_bt_disabled_title) lateinit var errorBtDisabledTitle: String
+  @BindString(R.string.error_bt_disabled_message) lateinit var errorBtDisabledMessage: String
+  @BindString(R.string.error_bt_connect_title) lateinit var errorBtConnectTitle: String
+  @BindString(R.string.error_bt_connect_message) lateinit var errorBtConnectMessage: String
 
-    @BindString(R.string.main_bluetooth_read_start) lateinit var buttonReadStart: String
-    @BindString(R.string.main_bluetooth_read_end) lateinit var buttonReadStop: String
-    @BindString(R.string.main_bluetooth_read_status) lateinit var readStatus: String
+  @BindString(R.string.main_bluetooth_read_start) lateinit var buttonReadStart: String
+  @BindString(R.string.main_bluetooth_read_end) lateinit var buttonReadStop: String
+  @BindString(R.string.main_bluetooth_read_status) lateinit var readStatus: String
 
-    @BindString(R.string.main_bluetooth_devices_title) lateinit var bluetoothDevicesTitle: String
-    @BindString(R.string.main_bluetooth_devices_loading) lateinit var bluetoothDevicesLoading: String
+  @BindString(R.string.main_bluetooth_devices_title) lateinit var bluetoothDevicesTitle: String
+  @BindString(R.string.main_bluetooth_devices_loading) lateinit var bluetoothDevicesLoading: String
 
-    @BindString(R.string.main_bluetooth_status_device) lateinit var mainBtStatusDevice: String
-    @BindString(R.string.main_bluetooth_status_none) lateinit var mainBtStatusNone: String
+  @BindString(R.string.main_bluetooth_status_device) lateinit var mainBtStatusDevice: String
+  @BindString(R.string.main_bluetooth_status_none) lateinit var mainBtStatusNone: String
 
-    private lateinit var bluetoothHelper: BluetoothHelper
-    private lateinit var activity: Activity
+  private lateinit var bluetoothHelper: BluetoothHelper
+  private lateinit var activity: Activity
 
-    // Bluetooth related
-    private var btDevice : BluetoothDevice? = null
+  // Bluetooth related
+  private var btDevice: BluetoothDevice? = null
 
-    // UI
-    private var btProgressDialog : MaterialDialog? = null
-    private var btListDialog: MaterialDialog? = null
-    private var writeStatus: Snackbar? = null
+  // UI
+  private var btProgressDialog: MaterialDialog? = null
+  private var btListDialog: MaterialDialog? = null
+  private var writeStatus: Snackbar? = null
 
-    private val bluetoothReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            val operation = intent.getIntExtra(BluetoothService.OPERATION, 0)
+  private val bluetoothReceiver = object : BroadcastReceiver() {
+    override fun onReceive(context: Context, intent: Intent) {
+      val operation = intent.getIntExtra(BluetoothService.OPERATION, 0)
 
-            if (BluetoothService.OPERATION_FILE_SAVE_START == operation) {
-                if (writeStatus != null) {
-                    writeStatus!!.dismiss()
-                }
-
-                val file: String = intent.getStringExtra("file")
-
-                writeStatus = Snackbar.make(mainView, String.format(readStatus, file), Snackbar.LENGTH_INDEFINITE)
-                writeStatus!!.show()
-            }
-
-            if (BluetoothService.OPERATION_FILE_SAVE_STOP == operation) {
-                if (writeStatus != null) {
-                    writeStatus!!.dismiss()
-                }
-            }
-
-            if (BluetoothService.OPERATION_DISCOVER_DEVICES == operation) {
-                btProgressDialog!!.dismiss();
-
-                val devices: ArrayList<BluetoothDevice> = intent.extras.getParcelableArrayList("devices")
-                var adapter : BluetoothDeviceAdapter = BluetoothDeviceAdapter(
-                    devices)
-                adapter.setCallback(btDeviceCallback)
-
-                btListDialog = MaterialDialog.Builder(activity)
-                        .title(bluetoothDevicesTitle)
-                        .adapter(adapter, null)
-                        .show()
-            }
-        }
-    }
-
-    private val btDeviceCallback = BluetoothDeviceAdapter.ItemCallback { device -> btListDialog!!.dismiss(); bluetoothDeviceSelected(device) }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        setContentView(R.layout.activity_main)
-        ButterKnife.bind(this)
-
-        activity = this
-        bluetoothHelper = BluetoothHelper();
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        LocalBroadcastManager.getInstance(this).registerReceiver(bluetoothReceiver, IntentFilter(
-                BluetoothService.INTENT_EVENT_NAME));
-
-        this.uiBluetoothDisabled()
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
-
-                requestPermissions(permissions, Util.REQUEST_PERMISSION_LOCATION)
-            } else {
-                this.checkIfBluetoothIsEnabled()
-            }
-        } else {
-            this.checkIfBluetoothIsEnabled()
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(bluetoothReceiver)
-
-        stopService(intentFor<BluetoothService>())
-    }
-
-    @OnClick(R.id.bluetooth_connect)
-    fun handlerBluetoothConnect() {
-        // Need a better way to handle this
-        if (bluetoothConnect.text == buttonReadStart) {
-            startService(intentFor<BluetoothService>(
-                    BluetoothService.OPERATION to BluetoothService.OPERATION_FILE_SAVE_START, BluetoothService.DEVICE to btDevice).singleTop())
-            bluetoothConnect.text = buttonReadStop
-        } else {
-            startService(intentFor<BluetoothService>(
-                    BluetoothService.OPERATION to BluetoothService.OPERATION_FILE_SAVE_STOP).singleTop())
-            bluetoothConnect.text = buttonReadStart
-        }
-    }
-
-    @OnClick(R.id.bluetooth_choose)
-    fun handlerBluetoothChoose() {
-        uiShowLoading(true)
-
-        startService(intentFor<BluetoothService>(
-                BluetoothService.OPERATION to BluetoothService.OPERATION_DISCOVER_DEVICES).singleTop())
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        Log.v(TAG, "Callback")
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M && requestCode == Util.REQUEST_PERMISSION_LOCATION) {
-            if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                this.checkIfBluetoothIsEnabled()
-            } else {
-                requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), Util.REQUEST_PERMISSION_LOCATION)
-            }
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
-        if (requestCode == Util.REQUEST_BT_ENABLE) {
-            if (resultCode == Activity.RESULT_OK) {
-                this.uiBluetoothEnabled()
-            } else {
-                Util.showAlert(this, errorBtDisabledTitle, errorBtDisabledMessage)
-            }
-        }
-    }
-
-    private fun checkIfBluetoothIsEnabled() {
-        bluetoothHelper.checkIfEnabled(this) { uiBluetoothEnabled() }
-    }
-
-    private fun uiBluetoothDisabled() {
-        bluetoothStatus.text = mainBtStatusNone
-        bluetoothChoose.isEnabled = false
-        bluetoothConnect.visibility = View.INVISIBLE
-    }
-
-    private fun uiBluetoothEnabled() {
-        bluetoothChoose.isEnabled = true
-        bluetoothConnect.visibility = View.VISIBLE
-        bluetoothConnect.isEnabled = false
-
-        val address: String? = Util.preferenceLoad(this, "deviceAddress")
-        if (address != null) {
-            val device: BluetoothDevice? = bluetoothHelper.getDeviceByAddress(address)
-            if (device != null) {
-                bluetoothDeviceSelected(device)
-            }
-        }
-    }
-
-    private fun uiBluetoothDeviceSelected() {
-        bluetoothStatus.text = String.format(mainBtStatusDevice, if (btDevice!!.name != null) btDevice!!.name else btDevice!!.address)
-        bluetoothConnect.isEnabled = true
-    }
-
-    private fun uiShowLoading(status: Boolean) {
-        if (btProgressDialog == null) {
-            btProgressDialog = MaterialDialog.Builder(this)
-                .title(bluetoothDevicesTitle)
-                .content(bluetoothDevicesLoading)
-                .progress(true, 0)
-                .build()
+      if (BluetoothService.OPERATION_FILE_SAVE_START == operation) {
+        if (writeStatus != null) {
+          writeStatus!!.dismiss()
         }
 
-        if (status) {
-            btProgressDialog!!.show()
-        } else {
-            btProgressDialog!!.dismiss()
+        val file: String = intent.getStringExtra("file")
+
+        writeStatus = Snackbar.make(mainView, String.format(readStatus, file),
+            Snackbar.LENGTH_INDEFINITE)
+        writeStatus!!.show()
+        ratStatus.text = ""
+        ratStatus.visibility = View.VISIBLE
+      }
+
+      if (BluetoothService.OPERATION_FILE_SAVE_STOP == operation) {
+        if (writeStatus != null) {
+          writeStatus!!.dismiss()
+          ratStatus.visibility = View.INVISIBLE
         }
+      }
+
+      if (BluetoothService.OPERATION_DISCOVER_DEVICES == operation) {
+        btProgressDialog!!.dismiss();
+
+        val devices: ArrayList<BluetoothDevice> = intent.extras.getParcelableArrayList("devices")
+        var adapter: BluetoothDeviceAdapter = BluetoothDeviceAdapter(
+            devices)
+        adapter.setCallback(btDeviceCallback)
+
+        btListDialog = MaterialDialog.Builder(activity)
+            .title(bluetoothDevicesTitle)
+            .adapter(adapter, null)
+            .show()
+      }
+
+      if (BluetoothService.OPERATION_NEW_STATE == operation) {
+        val state: String = intent.extras.getString("state")
+        ratStatus.text = state
+      }
+    }
+  }
+
+  private val btDeviceCallback = BluetoothDeviceAdapter.ItemCallback { device ->
+    btListDialog!!.dismiss(); bluetoothDeviceSelected(device)
+  }
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+
+    setContentView(R.layout.activity_main)
+    ButterKnife.bind(this)
+
+    activity = this
+    bluetoothHelper = BluetoothHelper()
+
+    ratStatus.visibility = View.INVISIBLE
+  }
+
+  override fun onResume() {
+    super.onResume()
+
+    LocalBroadcastManager.getInstance(this).registerReceiver(bluetoothReceiver, IntentFilter(
+        BluetoothService.INTENT_EVENT_NAME));
+
+    this.uiBluetoothDisabled()
+
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+      if (checkSelfPermission(
+          Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
+
+        requestPermissions(permissions, Util.REQUEST_PERMISSION_LOCATION)
+      } else {
+        this.checkIfBluetoothIsEnabled()
+      }
+    } else {
+      this.checkIfBluetoothIsEnabled()
+    }
+  }
+
+  override fun onPause() {
+    super.onPause()
+
+    LocalBroadcastManager.getInstance(this).unregisterReceiver(bluetoothReceiver)
+
+    stopService(intentFor<BluetoothService>())
+  }
+
+  @OnClick(R.id.bluetooth_connect)
+  fun handlerBluetoothConnect() {
+    // Need a better way to handle this
+    if (bluetoothConnect.text == buttonReadStart) {
+      startService(intentFor<BluetoothService>(
+          BluetoothService.OPERATION to BluetoothService.OPERATION_FILE_SAVE_START,
+          BluetoothService.DEVICE to btDevice).singleTop())
+      bluetoothConnect.text = buttonReadStop
+    } else {
+      startService(intentFor<BluetoothService>(
+          BluetoothService.OPERATION to BluetoothService.OPERATION_FILE_SAVE_STOP).singleTop())
+      bluetoothConnect.text = buttonReadStart
+    }
+  }
+
+  @OnClick(R.id.bluetooth_choose)
+  fun handlerBluetoothChoose() {
+    uiShowLoading(true)
+
+    startService(intentFor<BluetoothService>(
+        BluetoothService.OPERATION to BluetoothService.OPERATION_DISCOVER_DEVICES).singleTop())
+  }
+
+  override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>,
+      grantResults: IntArray) {
+    Log.v(TAG, "Callback")
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M && requestCode == Util.REQUEST_PERMISSION_LOCATION) {
+      if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        this.checkIfBluetoothIsEnabled()
+      } else {
+        requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+            Util.REQUEST_PERMISSION_LOCATION)
+      }
+    }
+  }
+
+  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    if (requestCode == Util.REQUEST_BT_ENABLE) {
+      if (resultCode == Activity.RESULT_OK) {
+        this.uiBluetoothEnabled()
+      } else {
+        Util.showAlert(this, errorBtDisabledTitle, errorBtDisabledMessage)
+      }
+    }
+  }
+
+  private fun checkIfBluetoothIsEnabled() {
+    bluetoothHelper.checkIfEnabled(this) { uiBluetoothEnabled() }
+  }
+
+  private fun uiBluetoothDisabled() {
+    bluetoothStatus.text = mainBtStatusNone
+    bluetoothChoose.isEnabled = false
+    bluetoothConnect.visibility = View.INVISIBLE
+  }
+
+  private fun uiBluetoothEnabled() {
+    bluetoothChoose.isEnabled = true
+    bluetoothConnect.visibility = View.VISIBLE
+    bluetoothConnect.isEnabled = false
+
+    val address: String? = Util.preferenceLoad(this, "deviceAddress")
+    if (address != null) {
+      val device: BluetoothDevice? = bluetoothHelper.getDeviceByAddress(address)
+      if (device != null) {
+        bluetoothDeviceSelected(device)
+      }
+    }
+  }
+
+  private fun uiBluetoothDeviceSelected() {
+    bluetoothStatus.text = String.format(mainBtStatusDevice,
+        if (btDevice!!.name != null) btDevice!!.name else btDevice!!.address)
+    bluetoothConnect.isEnabled = true
+  }
+
+  private fun uiShowLoading(status: Boolean) {
+    if (btProgressDialog == null) {
+      btProgressDialog = MaterialDialog.Builder(this)
+          .title(bluetoothDevicesTitle)
+          .content(bluetoothDevicesLoading)
+          .progress(true, 0)
+          .build()
     }
 
-    private fun bluetoothDeviceSelected(device: BluetoothDevice) {
-        btDevice = device
-        Util.preferenceSave(this, "deviceAddress", btDevice!!.address)
-
-        if (btListDialog != null) btListDialog!!.dismiss()
-
-        uiBluetoothDeviceSelected()
+    if (status) {
+      btProgressDialog!!.show()
+    } else {
+      btProgressDialog!!.dismiss()
     }
+  }
 
-    companion object {
-        private val TAG = "MainActivity"
-    }
+  private fun bluetoothDeviceSelected(device: BluetoothDevice) {
+    btDevice = device
+    Util.preferenceSave(this, "deviceAddress", btDevice!!.address)
+
+    if (btListDialog != null) btListDialog!!.dismiss()
+
+    uiBluetoothDeviceSelected()
+  }
+
+  companion object {
+    private val TAG = "MainActivity"
+  }
 }

@@ -21,6 +21,14 @@
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
+    <TextView
+        android:id="@+id/rat_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Hello World!"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+
     <Button
         android:id="@+id/bluetooth_choose"
         style="@style/Widget.AppCompat.Button"

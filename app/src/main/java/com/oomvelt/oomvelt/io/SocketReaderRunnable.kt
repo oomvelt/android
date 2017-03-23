@@ -1,6 +1,7 @@
 package com.oomvelt.oomvelt.io
 
 import android.bluetooth.BluetoothSocket
+import com.oomvelt.oomvelt.bluetooth.BluetoothService
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.info
 import raticator.SimpleBehaviour
@@ -19,13 +20,13 @@ import raticator.DataNode
 
 class SocketReaderRunnable @Throws(IOException::class)
 
-constructor(socket: BluetoothSocket, file: File) : Runnable, AnkoLogger {
+constructor(socket: BluetoothSocket, service: BluetoothService, file: File) : Runnable, AnkoLogger {
   private val mInputStream = socket.inputStream
   private val mBufferedReader: BufferedReader
   private val mFileWriterRunnable: FileWriterRunnable
   @Volatile private var mRunning = false
 
-  private val myCallback = DroidBehaviourCallback()
+  private val myCallback = DroidBehaviourCallback(service)
 
   init {
     info("Will write to file " + file.absolutePath)
@@ -36,19 +37,18 @@ constructor(socket: BluetoothSocket, file: File) : Runnable, AnkoLogger {
 
   override fun run() {
 
-    val behaviour = SimpleBehaviour();
-    behaviour.setup(this.myCallback);
+    val behaviour = SimpleBehaviour()
+    behaviour.setup(this.myCallback)
 
     val lpp = vTwoParser()
 
     while (mRunning) {
       try {
         val line = mBufferedReader.readLine()
-        info(line)
 
         try {
           val dn = lpp.parseLine(line)
-          behaviour.feedEntry(dn);
+          behaviour.feedEntry(dn)
         } catch (e: IllegalArgumentException) {
           info ("There was an exception on that line - probably a bad / non v2 line?")
           info(e.toString())
