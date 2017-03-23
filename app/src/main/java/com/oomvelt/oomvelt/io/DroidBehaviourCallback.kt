@@ -1,12 +1,13 @@
 package com.oomvelt.oomvelt.io
+import org.jetbrains.anko.info
+import org.jetbrains.anko.AnkoLogger
 
-import android.util.Log
 import com.oomvelt.oomvelt.bluetooth.BluetoothService
 import raticator.RatState
 import raticator.StateChangeCallback
 
 
-class DroidBehaviourCallback : StateChangeCallback {
+class DroidBehaviourCallback : StateChangeCallback, AnkoLogger {
   private val mBluetoothService: BluetoothService
 
   constructor(service: BluetoothService): super() {
@@ -14,7 +15,9 @@ class DroidBehaviourCallback : StateChangeCallback {
   }
 
   override fun StateChanged(newState: RatState) {
-    Log.i("BEHAVIOUR", "Rat state change has been detected: " + newState.toString())
+    info("----------------------------------------------------------")
+    info("Rat state change has been detected: " + newState.toString())
+    info("----------------------------------------------------------")
     mBluetoothService.onStateChange(newState)
   }
 }

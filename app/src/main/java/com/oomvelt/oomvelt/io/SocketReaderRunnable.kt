@@ -64,7 +64,8 @@ constructor(socket: BluetoothSocket, service: BluetoothService, file: File) : Ru
     try {
       mBufferedReader.close()
       mInputStream.close()
-    } catch (ignore: IOException) {
+    } catch (e: IOException) {
+      e.printStackTrace()
     }
 
     mFileWriterRunnable.close()

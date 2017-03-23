@@ -14,6 +14,15 @@
         android:layout_weight="0.12" />
 
     <TextView
+        android:id="@+id/application_version"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="1.0.0"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle"
+        />
+
+    <TextView
         android:id="@+id/bluetooth_status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
