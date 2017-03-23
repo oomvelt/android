@@ -13,6 +13,7 @@
     <string name="main_bluetooth_read_status">Saving to %s.</string>
     <string name="main_bluetooth_status_device">Will use Rat: %s.</string>
     <string name="main_bluetooth_status_none">No Rat selected.</string>
+    <string name="main_bluetooth_rat_status">Rat status: %s.</string>
     <string name="main_bluetooth_devices_title">Available Bluetooth devices</string>
     <string name="main_bluetooth_devices_loading">Looking for nearby Bluetooth devices.</string>
     <string name="btlist_title">Bluetooth devices</string>

@@ -35,6 +35,7 @@ class MainActivity : AppCompatActivity() {
   @BindView(R.id.bluetooth_connect) lateinit var bluetoothConnectButton: Button
 
   @BindView(R.id.bluetooth_status) lateinit var bluetoothStatusView: TextView
+  @BindView(R.id.rat_status) lateinit var ratStatusView: TextView
   @BindView(R.id.application_version) lateinit var applicationVersionView: TextView
 
   @BindView(R.id.activity_main) lateinit var mainViewLayout: CoordinatorLayout
@@ -78,12 +79,20 @@ class MainActivity : AppCompatActivity() {
         mWriteStatusSnackbar = Snackbar.make(mainViewLayout, String.format(uiReadStatus, file),
             Snackbar.LENGTH_INDEFINITE)
         mWriteStatusSnackbar!!.show()
+        ratStatusView.text = ""
+        ratStatusView.visibility = View.VISIBLE
       }
 
       if (BluetoothService.OPERATION_FILE_SAVE_STOP == operation) {
         if (mWriteStatusSnackbar != null) {
           mWriteStatusSnackbar!!.dismiss()
+          ratStatusView.visibility = View.INVISIBLE
         }
+      }
+
+      if (BluetoothService.OPERATION_NEW_STATE == operation) {
+        val state = intent.getStringExtra("state")
+        ratStatusView.text = state
       }
 
       if (BluetoothService.OPERATION_DISCOVER_DEVICES == operation) {
@@ -116,6 +125,8 @@ class MainActivity : AppCompatActivity() {
 
     val versionName = packageManager.getPackageInfo(packageName, 0).versionName
     applicationVersionView.text = versionName
+
+    ratStatusView.visibility = View.INVISIBLE
   }
 
   override fun onResume() {
