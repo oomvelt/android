@@ -21,6 +21,9 @@ import raticator.DataNode
 class SocketReaderRunnable @Throws(IOException::class)
 
 constructor(socket: BluetoothSocket, service: BluetoothService, file: File) : Runnable, AnkoLogger {
+
+  private val mSocket = socket
+
   private val mInputStream = socket.inputStream
   private val mBufferedReader: BufferedReader
   private val mFileWriterRunnable: FileWriterRunnable
@@ -46,18 +49,40 @@ constructor(socket: BluetoothSocket, service: BluetoothService, file: File) : Ru
       try {
         val line = mBufferedReader.readLine()
 
+        // Log the line before processing it.
+        mFileWriterRunnable.append(line)
+
         try {
           val dn = lpp.parseLine(line)
           behaviour.feedEntry(dn)
         } catch (e: IllegalArgumentException) {
           info ("There was an exception on that line - probably a bad / non v2 line?")
           info(e.toString())
+          info("Socket status: " + this.mSocket.isConnected )
         }
 
-
-        mFileWriterRunnable.append(line)
       } catch (e: IOException) {
-        e.printStackTrace()
+
+        // Whilst the following code looks good, isConnected doesn't seem to do what you think it does
+
+        //if ( ! this.mSocket.isConnected){
+        //  this.mSocket.connect()
+        //} else {
+        //  info ("IO Exception on the read.. not printing stack to reduce log files")
+          //e.printStackTrace()
+        //}
+
+        if(mRunning) {
+          try {
+            info("Socket status: " + this.mSocket.isConnected )
+            this.mSocket.connect()
+            if (this.mSocket.isConnected){
+              break
+            }
+          } catch(e: IOException) {
+            info("Reconnect failed, try again!")
+          }
+        }
       }
     }
 
