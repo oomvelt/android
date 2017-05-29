@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import raticator.DataNode;
 import raticator.RatState;
 import raticator.StateChangeCallback;
 
@@ -27,12 +28,14 @@ public class BluetoothService extends Service {
   public static final String INTENT_EVENT_NAME = "OOMVELT_BLUETOOTH_SERVICE";
   public static final String OPERATION = "operation";
   public static final String DEVICE = "device";
+  public static final String MARKER = "marker";
   private static final String FILE_DIRECTORY = "oomvelt";
 
   public static final int OPERATION_DISCOVER_DEVICES = 0;
   public static final int OPERATION_FILE_SAVE_START = 1;
   public static final int OPERATION_FILE_SAVE_STOP = 2;
   public static final int OPERATION_NEW_STATE = 3;
+  public static final int OPERATION_INSERT_MARKER = 4;
 
   private Service mService;
   private SocketReaderRunnable mSocketReader;
@@ -150,6 +153,17 @@ public class BluetoothService extends Service {
     }
   }
 
+  private void operationInsertMarker(Intent intent) {
+    int type = intent.getExtras().getInt(MARKER);
+
+    DataNode marker = new DataNode();
+
+    marker.ypr = marker.new YPR(type * 100000, type * 100000, type * 100000);
+    marker.acceleration = marker.new Acceleration(type * 100000, type * 100000, type * 100000);
+
+    mSocketReader.marker(marker);
+  }
+
   @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
     int task = intent.getIntExtra(OPERATION, 0);
@@ -165,6 +179,10 @@ public class BluetoothService extends Service {
 
     if (task == OPERATION_FILE_SAVE_STOP && mSaving) {
       operationFileSaveStop();
+    }
+
+    if (task == OPERATION_INSERT_MARKER) {
+      operationInsertMarker(intent);
     }
 
     return Service.START_STICKY;

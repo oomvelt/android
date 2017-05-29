@@ -13,6 +13,9 @@ import java.io.InputStreamReader
 import raticator.vTwoParser
 import raticator.LineProtocolParser
 import raticator.DataNode
+import com.google.gson.Gson
+
+
 
 
 
@@ -27,6 +30,10 @@ constructor(socket: BluetoothSocket, service: BluetoothService, file: File) : Ru
   private val mInputStream = socket.inputStream
   private val mBufferedReader: BufferedReader
   private val mFileWriterRunnable: FileWriterRunnable
+
+  private var lastTime = 0
+  private val gson = Gson()
+
   @Volatile private var mRunning = false
 
   private val myCallback = DroidBehaviourCallback(service)
@@ -38,8 +45,15 @@ constructor(socket: BluetoothSocket, service: BluetoothService, file: File) : Ru
     mFileWriterRunnable = FileWriterRunnable(file)
   }
 
-  override fun run() {
+  fun marker(marker: DataNode) {
+    marker.time = lastTime + 1
 
+    var line = "0.2:" + gson.toJson(marker)
+    info(line)
+    mFileWriterRunnable.append(line)
+  }
+
+  override fun run() {
     val behaviour = SimpleBehaviour()
     behaviour.setup(this.myCallback)
 
@@ -54,6 +68,8 @@ constructor(socket: BluetoothSocket, service: BluetoothService, file: File) : Ru
 
         try {
           val dn = lpp.parseLine(line)
+          lastTime = dn.time;
+
           behaviour.feedEntry(dn)
         } catch (e: IllegalArgumentException) {
           info ("There was an exception on that line - probably a bad / non v2 line?")

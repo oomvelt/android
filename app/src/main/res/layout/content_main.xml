@@ -38,9 +38,15 @@
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center_vertical|center"
+      android:gravity="center_vertical|center"
+      android:orientation="horizontal"
+      >
     <Button
         android:id="@+id/bluetooth_choose"
-        style="@style/Widget.AppCompat.Button"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/textView"
@@ -48,11 +54,12 @@
         android:layout_marginTop="30dp"
         android:elevation="0dp"
         android:text="@string/main_bluetooth_setup"
-        android:textAlignment="center" />
+        android:textAlignment="center"
+        style="@style/Widget.AppCompat.Button"
+        />
 
     <Button
         android:id="@+id/bluetooth_connect"
-        style="@style/Widget.AppCompat.Button"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/textView"
@@ -60,6 +67,83 @@
         android:layout_marginTop="30dp"
         android:elevation="0dp"
         android:text="@string/main_bluetooth_read_start"
-        android:textAlignment="center" />
+        android:textAlignment="center"
+        style="@style/Widget.AppCompat.Button"
+        />
+
+  </LinearLayout>
+
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center_vertical|center"
+      android:gravity="center_vertical|center"
+      android:orientation="horizontal"
+      >
+    <Button
+        android:id="@+id/marker_one"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="30dp"
+        android:elevation="0dp"
+        android:text="@string/main_marker_one"
+        android:textAlignment="center"
+        style="@style/Widget.AppCompat.Button"
+        />
+
+    <Button
+        android:id="@+id/marker_two"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="30dp"
+        android:elevation="0dp"
+        android:text="@string/main_marker_two"
+        android:textAlignment="center"
+        style="@style/Widget.AppCompat.Button"
+        />
+
+    <Button
+        android:id="@+id/marker_three"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="30dp"
+        android:elevation="0dp"
+        android:text="@string/main_marker_three"
+        android:textAlignment="center"
+        style="@style/Widget.AppCompat.Button"
+        />
+
+    <Button
+        android:id="@+id/marker_four"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="30dp"
+        android:elevation="0dp"
+        android:text="@string/main_marker_four"
+        android:textAlignment="center"
+        style="@style/Widget.AppCompat.Button"
+        />
+
+    <Button
+        android:id="@+id/marker_five"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="30dp"
+        android:elevation="0dp"
+        android:text="@string/main_marker_five"
+        android:textAlignment="center"
+        style="@style/Widget.AppCompat.Button"
+        />
+  </LinearLayout>
 
 </LinearLayout>

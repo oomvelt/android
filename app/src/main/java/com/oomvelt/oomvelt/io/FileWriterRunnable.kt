@@ -45,7 +45,7 @@ internal class FileWriterRunnable @Throws(IOException::class) constructor(
 
         if (line != null) {
           try {
-            info(line)
+            // info(line)
             mOut.write(line)
           } catch (e: IOException) {
             e.printStackTrace()

@@ -34,6 +34,12 @@ class MainActivity : AppCompatActivity() {
   @BindView(R.id.bluetooth_choose) lateinit var bluetoothChooseButton: Button
   @BindView(R.id.bluetooth_connect) lateinit var bluetoothConnectButton: Button
 
+  @BindView(R.id.marker_one) lateinit var markerOneButton: Button
+  @BindView(R.id.marker_two) lateinit var markerTwoButton: Button
+  @BindView(R.id.marker_three) lateinit var markerThreeButton: Button
+  @BindView(R.id.marker_four) lateinit var markerFourButton: Button
+  @BindView(R.id.marker_five) lateinit var markerFiveButton: Button
+
   @BindView(R.id.bluetooth_status) lateinit var bluetoothStatusView: TextView
   @BindView(R.id.rat_status) lateinit var ratStatusView: TextView
   @BindView(R.id.application_version) lateinit var applicationVersionView: TextView
@@ -167,10 +173,22 @@ class MainActivity : AppCompatActivity() {
           BluetoothService.OPERATION to BluetoothService.OPERATION_FILE_SAVE_START,
           BluetoothService.DEVICE to mBluetoothDevice).singleTop())
       bluetoothConnectButton.text = uiButtonReadStop
+
+      markerOneButton.visibility = View.VISIBLE
+      markerTwoButton.visibility = View.VISIBLE
+      markerThreeButton.visibility = View.VISIBLE
+      markerFourButton.visibility = View.VISIBLE
+      markerFiveButton.visibility = View.VISIBLE
     } else {
       startService(intentFor<BluetoothService>(
           BluetoothService.OPERATION to BluetoothService.OPERATION_FILE_SAVE_STOP).singleTop())
       bluetoothConnectButton.text = uiButtonReadStart
+
+      markerOneButton.visibility = View.INVISIBLE
+      markerTwoButton.visibility = View.INVISIBLE
+      markerThreeButton.visibility = View.INVISIBLE
+      markerFourButton.visibility = View.INVISIBLE
+      markerFiveButton.visibility = View.INVISIBLE
     }
   }
 
@@ -180,6 +198,41 @@ class MainActivity : AppCompatActivity() {
 
     startService(intentFor<BluetoothService>(
         BluetoothService.OPERATION to BluetoothService.OPERATION_DISCOVER_DEVICES).singleTop())
+  }
+
+  @OnClick(R.id.marker_one)
+  fun handlerMarkerOne() {
+    startService(intentFor<BluetoothService>(
+        BluetoothService.OPERATION to BluetoothService.OPERATION_INSERT_MARKER,
+        BluetoothService.MARKER to 1).singleTop())
+  }
+
+  @OnClick(R.id.marker_two)
+  fun handlerMarkerTwo() {
+    startService(intentFor<BluetoothService>(
+        BluetoothService.OPERATION to BluetoothService.OPERATION_INSERT_MARKER,
+        BluetoothService.MARKER to 2).singleTop())
+  }
+
+  @OnClick(R.id.marker_three)
+  fun handlerMarkerThree() {
+    startService(intentFor<BluetoothService>(
+        BluetoothService.OPERATION to BluetoothService.OPERATION_INSERT_MARKER,
+        BluetoothService.MARKER to 3).singleTop())
+  }
+
+  @OnClick(R.id.marker_four)
+  fun handlerMarkerFour() {
+    startService(intentFor<BluetoothService>(
+        BluetoothService.OPERATION to BluetoothService.OPERATION_INSERT_MARKER,
+        BluetoothService.MARKER to 4).singleTop())
+  }
+
+  @OnClick(R.id.marker_five)
+  fun handlerMarkerFive() {
+    startService(intentFor<BluetoothService>(
+        BluetoothService.OPERATION to BluetoothService.OPERATION_INSERT_MARKER,
+        BluetoothService.MARKER to 5).singleTop())
   }
 
   override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -214,6 +267,12 @@ class MainActivity : AppCompatActivity() {
     bluetoothStatusView.text = uiMainBtStatusNone
     bluetoothChooseButton.isEnabled = false
     bluetoothConnectButton.visibility = View.INVISIBLE
+
+    markerOneButton.visibility = View.INVISIBLE
+    markerTwoButton.visibility = View.INVISIBLE
+    markerThreeButton.visibility = View.INVISIBLE
+    markerFourButton.visibility = View.INVISIBLE
+    markerFiveButton.visibility = View.INVISIBLE
   }
 
   private fun uiBluetoothEnabled() {

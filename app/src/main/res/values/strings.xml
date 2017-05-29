@@ -14,6 +14,11 @@
     <string name="main_bluetooth_status_device">Will use Rat: %s.</string>
     <string name="main_bluetooth_status_none">No Rat selected.</string>
     <string name="main_bluetooth_rat_status">Rat status: %s.</string>
+    <string name="main_marker_one">Mrk #1</string>
+    <string name="main_marker_two">Mrk #2</string>
+    <string name="main_marker_three">Mrk #3</string>
+    <string name="main_marker_four">Mrk #4</string>
+    <string name="main_marker_five">Mrk #5</string>
     <string name="main_bluetooth_devices_title">Available Bluetooth devices</string>
     <string name="main_bluetooth_devices_loading">Looking for nearby Bluetooth devices.</string>
     <string name="btlist_title">Bluetooth devices</string>
